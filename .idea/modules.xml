@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/count-me-up.iml" filepath="$PROJECT_DIR$/count-me-up.iml" />
+      <module fileurl="file://$PROJECT_DIR$/count-me-up-acceptance-tests/count-me-up-acceptance-tests.iml" filepath="$PROJECT_DIR$/count-me-up-acceptance-tests/count-me-up-acceptance-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/count-me-up-core/count-me-up-core.iml" filepath="$PROJECT_DIR$/count-me-up-core/count-me-up-core.iml" />
+    </modules>
+  </component>
+</project>
