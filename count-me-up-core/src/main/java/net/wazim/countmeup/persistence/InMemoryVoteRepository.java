@@ -4,26 +4,26 @@ import net.wazim.countmeup.domain.Vote;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryVoteRepository implements VoteRepository {
 
-    private final List<Vote> votes = new ArrayList<>();
+    private final Map<String, List<Vote>> votes = new ConcurrentHashMap<>();
 
     @Override
     public void persistVote(Vote vote) {
-        votes.add(vote);
+        List<Vote> candidateVotes = votes.getOrDefault(vote.candidateName(), new ArrayList<>());
+        candidateVotes.add(vote);
+        votes.put(vote.candidateName(), candidateVotes);
     }
 
     @Override
-    public List<Vote> votes() {
+    public Map<String, List<Vote>> votes() {
         return votes;
     }
 
-    public void persistAllVotes(List<Vote> votes) {
-        this.votes.addAll(votes);
-    }
-
     public void resetVotes() {
-        this.votes.clear();
+        votes.clear();
     }
 }

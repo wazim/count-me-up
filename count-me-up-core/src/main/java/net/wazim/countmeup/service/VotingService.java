@@ -6,10 +6,10 @@ import net.wazim.countmeup.domain.VotingResults;
 import net.wazim.countmeup.persistence.VoteRepository;
 import org.springframework.http.HttpStatus;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 public class VotingService {
@@ -29,9 +29,7 @@ public class VotingService {
     }
 
     public VotingResults overallResultsForPoll() {
-        Map<String, List<Vote>> groupedVotes = voteRepository.votes()
-                .parallelStream()
-                .collect(groupingBy(Vote::candidateName));
+        Map<String, List<Vote>> groupedVotes = voteRepository.votes();
 
         List<CandidateTotalScore> candidateTotalScores = groupedVotes.entrySet()
                 .stream()
@@ -42,7 +40,9 @@ public class VotingService {
     }
 
     private boolean voteLimitHasBeenExceededBy(String voterName) {
-        return voteRepository.votes().stream()
+        return voteRepository.votes().values()
+                .stream()
+                .flatMap(Collection::stream)
                 .filter(persistedVote -> persistedVote.voterName().equals(voterName))
                 .count() >= 3;
     }

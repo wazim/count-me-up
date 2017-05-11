@@ -4,7 +4,9 @@ import com.googlecode.yatspec.state.givenwhenthen.StateExtractor;
 import net.wazim.countmeup.domain.Vote;
 import net.wazim.countmeup.persistence.VoteRepository;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CountMeUpInteractions {
 
@@ -16,14 +18,16 @@ public class CountMeUpInteractions {
 
     public StateExtractor<Vote> hasRegistered() {
         return inputAndOutputs -> {
-            List<Vote> allVotes = voteRepository
-                    .votes();
+            List<Vote> allVotes = voteRepository.votes().values().stream().flatMap(Collection::stream).collect(Collectors.toList());
             return allVotes.get(allVotes.size() - 1);
         };
     }
 
     public StateExtractor<Long> hasNumberOfVotesRegisteredFromVoter(String voterName) {
-        return inputAndOutputs -> voteRepository.votes().stream().filter(vote -> vote.voterName().equals(voterName)).count();
+        return inputAndOutputs -> {
+            List<Vote> allVotes = voteRepository.votes().values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+            return allVotes.stream().filter(vote -> vote.voterName().equals(voterName)).count();
+        };
     }
 
 }

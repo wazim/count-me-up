@@ -10,7 +10,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 
+import java.util.HashMap;
+import java.util.List;
+
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -25,10 +29,15 @@ public class VotingServiceTest {
 
     @Test
     public void persistsAVoteIfCurrentVoteCountIsLessThan3() {
-        when(voteRepository.votes()).thenReturn(asList(new Vote("A", "B"), new Vote("A", "B")));
+        HashMap<String, List<Vote>> votes = new HashMap<>();
+        votes.put("A", asList(
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B")
+        ));
+        when(voteRepository.votes()).thenReturn(votes);
 
         VotingService votingService = new VotingService(voteRepository);
-        Vote vote = new Vote("A", "B");
+        Vote vote = new Vote("Voter A", "Candidate B");
 
         HttpStatus httpStatus = votingService.handleVoteSubmission(vote);
 
@@ -38,10 +47,16 @@ public class VotingServiceTest {
 
     @Test
     public void doesNotPersistVoteIfCurrentVoteCountIs3() {
-        when(voteRepository.votes()).thenReturn(asList(new Vote("A", "B"), new Vote("A", "B"), new Vote("A", "B")));
+        HashMap<String, List<Vote>> votes = new HashMap<>();
+        votes.put("A", asList(
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B")
+        ));
+        when(voteRepository.votes()).thenReturn(votes);
         VotingService votingService = new VotingService(voteRepository);
 
-        HttpStatus httpStatus = votingService.handleVoteSubmission(new Vote("A", "B"));
+        HttpStatus httpStatus = votingService.handleVoteSubmission(new Vote("Voter A", "Candidate B"));
 
         assertThat(httpStatus.value(), is(403));
         verify(voteRepository, never()).persistVote(any());
@@ -49,10 +64,17 @@ public class VotingServiceTest {
 
     @Test
     public void doesNotPersistVoteIfCurrentVoteCountIsGreaterThan3() {
-        when(voteRepository.votes()).thenReturn(asList(new Vote("A", "B"), new Vote("A", "B"), new Vote("A", "B"), new Vote("A", "B")));
+        HashMap<String, List<Vote>> votes = new HashMap<>();
+        votes.put("A", asList(
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B")
+        ));
+        when(voteRepository.votes()).thenReturn(votes);
         VotingService votingService = new VotingService(voteRepository);
 
-        HttpStatus httpStatus = votingService.handleVoteSubmission(new Vote("A", "B"));
+        HttpStatus httpStatus = votingService.handleVoteSubmission(new Vote("Voter A", "Candidate B"));
 
         assertThat(httpStatus.value(), is(403));
         verify(voteRepository, never()).persistVote(any());
@@ -60,13 +82,17 @@ public class VotingServiceTest {
 
     @Test
     public void retrievesVotingResults() {
-        when(voteRepository.votes()).thenReturn(asList(
-                new Vote("A", "B"),
-                new Vote("A", "B"),
-                new Vote("A", "B"),
-                new Vote("A", "B"),
-                new Vote("B", "A")
+        HashMap<String, List<Vote>> votes = new HashMap<>();
+        votes.put("A", singletonList(
+                new Vote("Voter B", "Candidate A")
         ));
+        votes.put("B", asList(
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B"),
+                new Vote("Voter A", "Candidate B")
+        ));
+        when(voteRepository.votes()).thenReturn(votes);
         VotingService votingService = new VotingService(voteRepository);
 
         VotingResults results = votingService.overallResultsForPoll();

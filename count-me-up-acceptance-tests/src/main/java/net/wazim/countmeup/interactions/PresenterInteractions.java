@@ -23,12 +23,12 @@ public class PresenterInteractions {
         return (givens, capturedInputAndOutputs) -> {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            capturedInputAndOutputs.add("Request from Presenter to CountMeUp", "/votes");
+            capturedInputAndOutputs.add("Request from Presenter to CountMeUp", "GET\n/votes");
             votingResults = httpClient.getForObject("/votes", VotingResults.class);
             capturedInputAndOutputs.add("Response from CountMeUp to Presenter", objectMapper.writeValueAsString(votingResults));
             stopWatch.stop();
             requestTimeMillis = stopWatch.getTotalTimeMillis();
-            capturedInputAndOutputs.add("Response Time from CountMeUp to Presenter", requestTimeMillis);
+            capturedInputAndOutputs.add("Response Time from CountMeUp to Presenter", requestTimeMillis + " milliseconds");
             return capturedInputAndOutputs;
         };
     }
